@@ -29,10 +29,11 @@ def run_model3(df_train, df_val):
     num_empties = 0
     num_tries = 5
     
+    random_example = df_train.sample(n=1, random_state=RANDOM_STATE)
+    print(f"Random example selected:\nindex:{random_example.index[0]}\n{random_example}\n")
     for index, row in df_val.iterrows():
         print(f"Processing question {index}...")
-        random_example = df_train.sample(n=1, random_state=index)
-        # print(f"Random example selected:\nindex:{random_example.index[0]}\n{random_example}\n")
+        
         prompt = get_prompt(
             df_train = df_train,
             question_ids = [random_example.index[0]],
@@ -45,10 +46,9 @@ def run_model3(df_train, df_val):
         outputs = codeqwen2d5.generate(**inputs, max_new_tokens=1)
         answer_tokens = outputs[:, inputs['input_ids'].shape[1]:]
         generated_answer = codeqwen2d5_tokenizer.decode(answer_tokens[0], skip_special_tokens=True).strip()
-        # print(f'Gen answer:\n{generated_answer}')
-        if generated_answer == "":
+        if generated_answer == "" or not generated_answer[-1].isalpha():
             num_empties += 1
-            generated_answer = "C" # with a minority of empty answer => answer: C
+            generated_answer = "C" # with a minority of empty or invalid answers => answer: C
 
         generated_answers.append(generated_answer)
 
