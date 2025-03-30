@@ -27,9 +27,9 @@ def run_model3(df_train, df_val):
     generated_answers = []
     results = []
     num_empties = 0
-    # num_tries = 5
+    num_tries = 5
     random_example = df_train.sample(n=1, random_state=RANDOM_STATE)
-    print(f"Random example selected:\n{random_example}\n")
+    print(f"Random example selected:\nindex:{random_example.index[0]}\n{random_example}\n")
     for index, row in df_val.iterrows():
         print(f"Processing question {index}...")
         prompt = get_prompt(
@@ -64,4 +64,4 @@ def run_model3(df_train, df_val):
     print(f"\nFinished inference, {num_empties} empty answers are set to C.\n")
     # write results to a csv
     df_results = pd.DataFrame(results)
-    df_results.to_csv('outputs/codeqwen2d5_14b_3shot.csv', index=False)
+    df_results.to_csv('outputs/qwen2d5_7b_1shot.csv', index=False)
