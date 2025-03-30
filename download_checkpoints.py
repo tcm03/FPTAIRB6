@@ -6,8 +6,10 @@ import os
 # target_dir = "checkpoints/CodeQwen1.5-7B"
 # model_id = "Qwen/Qwen2.5-Coder-14B"
 # target_dir = "checkpoints/Qwen2.5-Coder-14B"
-model_id = "Qwen/Qwen2.5-Coder-7B"
-target_dir = "checkpoints/Qwen2.5-Coder-7B"
+# model_id = "Qwen/Qwen2.5-Coder-7B"
+# target_dir = "checkpoints/Qwen2.5-Coder-7B"
+model_id = "Qwen/Qwen2.5-Coder-7B-Instruct"
+target_dir = "checkpoints/Qwen2.5-Coder-7B-Instruct"
 if not os.path.exists(target_dir):
     os.makedirs(target_dir)
 
