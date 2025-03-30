@@ -3,14 +3,8 @@ import torch
 import pandas as pd
 from sklearn.metrics import accuracy_score
 import ast
+from prompts import get_prompt
 
-def format_prompt(question, choices):
-    prompt = f"{question}\n"
-    choice_labels = ['A', 'B', 'C', 'D']
-    for label, choice in zip(choice_labels, choices):
-        prompt += f"{label}. {choice}\n"
-    prompt += "Answer:"
-    return prompt
 
 def run_model1(df_train, df_val):
     codeqwen1d5_name = "Qwen/CodeQwen1.5-7B"
@@ -33,7 +27,12 @@ def run_model1(df_train, df_val):
 
     for index, row in df_val.iterrows():
         print(f"Processing question {index}...")
-        prompt = format_prompt(row['question'], row['choices'])
+        prompt = get_prompt(
+            df_train = df_train,
+            question_ids = [1, 2, 3],
+            question = row['question'], 
+            choices = row['choices']
+        )
         inputs = codeqwen1d5_tokenizer(prompt, return_tensors="pt", return_token_type_ids=False).to(device)
 
         outputs = codeqwen1d5.generate(**inputs, max_new_tokens=1)
@@ -72,14 +71,22 @@ def run_model2(df_train, df_val):
     generated_answers = []
     results = []
     num_empties = 0
+    # num_tries = 5
     for index, row in df_val.iterrows():
         print(f"Processing question {index}...")
-        prompt = format_prompt(row['question'], row['choices'])
+        prompt = get_prompt(
+            df_train = df_train,
+            question_ids = [1, 2, 3],
+            question = row['question'], 
+            choices = row['choices']
+        )
+        # print(f'Constructed prompt:\n{prompt}')
         inputs = codeqwen2d5_tokenizer(prompt, return_tensors="pt", return_token_type_ids=False).to(device)
 
         outputs = codeqwen2d5.generate(**inputs, max_new_tokens=1)
         answer_tokens = outputs[:, inputs['input_ids'].shape[1]:]
         generated_answer = codeqwen2d5_tokenizer.decode(answer_tokens[0], skip_special_tokens=True).strip()
+        # print(f'Gen answer:\n{generated_answer}')
         if generated_answer == "":
             num_empties += 1
             generated_answer = "C" # with a minority of empty answer => answer: C
@@ -91,10 +98,15 @@ def run_model2(df_train, df_val):
             'answer': generated_answer
         })
 
+        # num_tries -= 1
+        # if num_tries == 0:
+        #     break
+        # break
+
     print(f"\nFinished inference, {num_empties} empty answers are set to C.\n")
     # write results to a csv
     df_results = pd.DataFrame(results)
-    df_results.to_csv('submission/codeqwen2d5_14b_submission.csv', index=False)
+    df_results.to_csv('outputs/codeqwen2d5_14b_3shot.csv', index=False)
 
 if __name__ == "__main__":
     df_train = pd.read_csv('data/b6_train_data.csv')
