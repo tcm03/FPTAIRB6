@@ -24,5 +24,5 @@ if __name__ == "__main__":
     df_val['choices'] = df_val['choices'].apply(ast.literal_eval)
 
     # run_model1(df_train, df_val)
-    # run_model2(df_train, df_val)
-    run_model3(df_train, df_val)
+    run_model2(df_train, df_val)
+    # run_model3(df_train, df_val)

@@ -1,6 +1,7 @@
 import sys
 sys.path.append(".")
 from utils.prompts import get_prompt
+from utils.constants import *
 
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
@@ -26,12 +27,16 @@ def run_model2(df_train, df_val):
     generated_answers = []
     results = []
     num_empties = 0
-    # num_tries = 5
+    num_tries = 3
+    random_example = df_train.sample(n=1, random_state=RANDOM_STATE)
+    another_random_example = df_train.sample(n=1, random_state=2*RANDOM_STATE)
+    print(f"Random example selected:\nindex:{random_example.index[0]}\n{random_example}\n")
+    print(f"Another random example selected:\nindex:{another_random_example.index[0]}\n{another_random_example}\n")
     for index, row in df_val.iterrows():
         print(f"Processing question {index}...")
         prompt = get_prompt(
             df_train = df_train,
-            question_ids = [1, 2, 3],
+            question_ids = [random_example.index[0], another_random_example.index[0]],
             question = row['question'], 
             choices = row['choices']
         )
@@ -42,7 +47,7 @@ def run_model2(df_train, df_val):
         answer_tokens = outputs[:, inputs['input_ids'].shape[1]:]
         generated_answer = codeqwen2d5_tokenizer.decode(answer_tokens[0], skip_special_tokens=True).strip()
         # print(f'Gen answer:\n{generated_answer}')
-        if generated_answer == "":
+        if generated_answer == "" or not generated_answer[-1].isalpha():
             num_empties += 1
             generated_answer = "C" # with a minority of empty answer => answer: C
 
@@ -61,4 +66,4 @@ def run_model2(df_train, df_val):
     print(f"\nFinished inference, {num_empties} empty answers are set to C.\n")
     # write results to a csv
     df_results = pd.DataFrame(results)
-    df_results.to_csv('outputs/codeqwen2d5_14b_3shot.csv', index=False)
+    df_results.to_csv('outputs/qwen2d5_14b_2shot.csv', index=False)

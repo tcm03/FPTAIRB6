@@ -30,13 +30,15 @@ def run_model3(df_train, df_val):
     num_tries = 5
     
     random_example = df_train.sample(n=1, random_state=RANDOM_STATE)
+    another_random_example = df_train.sample(n=1, random_state=2*RANDOM_STATE)
     print(f"Random example selected:\nindex:{random_example.index[0]}\n{random_example}\n")
+    print(f"Another random example selected:\nindex:{another_random_example.index[0]}\n{another_random_example}\n")
     for index, row in df_val.iterrows():
         print(f"Processing question {index}...")
         
         prompt = get_prompt(
             df_train = df_train,
-            question_ids = [random_example.index[0]],
+            question_ids = [random_example.index[0], another_random_example.index[0]],
             question = row['question'], 
             choices = row['choices']
         )
