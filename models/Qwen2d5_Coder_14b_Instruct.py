@@ -27,13 +27,13 @@ def run_model5(df_train, df_val):
     generated_answers = []
     results = []
     num_empties = 0
-    num_tries = 5
+    num_tries = 10
 
     # Select random examples from the training set for context
-    random_example = df_train.sample(n=1, random_state=RANDOM_STATE)
-    another_random_example = df_train.sample(n=1, random_state=2*RANDOM_STATE)
+    random_example = df_train.sample(n=1, random_state=2*RANDOM_STATE)
+    # another_random_example = df_train.sample(n=1, random_state=2*RANDOM_STATE)
     print(f"Random example selected:\n{random_example}\n")
-    print(f"Another random example selected:\n{another_random_example}\n")
+    # print(f"Another random example selected:\n{another_random_example}\n")
 
     for index, row in df_val.iterrows():
         print(f"Processing question {index}...")
@@ -41,7 +41,7 @@ def run_model5(df_train, df_val):
         # Construct the prompt using the chat template
         prompt_chat = get_prompt_chat(
             df_train=df_train,
-            question_ids=[random_example.index[0], another_random_example.index[0]],
+            question_ids=[random_example.index[0]],
             question=row['question'],
             choices=row['choices']
         )
@@ -81,4 +81,4 @@ def run_model5(df_train, df_val):
 
     # Save results to a CSV file
     df_results = pd.DataFrame(results)
-    df_results.to_csv('outputs/qwen2d5_14b_instruct_2shot.csv', index=False)
+    df_results.to_csv('outputs/qwen2d5_14b_instruct_1shot.csv', index=False)
